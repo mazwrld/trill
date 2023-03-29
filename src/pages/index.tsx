@@ -3,17 +3,24 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { type NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
 import { api, type RouterOutputs } from "~/utils/api";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
 
+  if (!user) return null;
+
   return (
     <div className="flex w-full gap-3">
-      <img
+      <Image
         className="h-14 w-14 rounded-full"
-        src={user?.profileImageUrl}
+        src={user.profileImageUrl}
         alt="User profile image"
+        width={56}
+        height={56}
+        placeholder="blur"
+        blurDataURL={user?.profileImageUrl}
       />
       <input
         className="grow bg-transparent outline-none"
@@ -31,10 +38,14 @@ const PostView = (props: PostWithAuthor) => {
 
   return (
     <div key={post.id} className="flex gap-3 border-b border-slate-400 p-4">
-      <img
+      <Image
         src={author.profileImageUrl}
-        alt="User profile image"
+        alt={`@${author.username}'s profile image`}
         className="h-14 w-14 rounded-full"
+        width={56}
+        height={56}
+        placeholder="blur"
+        blurDataURL={author.profileImageUrl}
       />
       <div className="flex flex-col">
         <div className="flex gap-1 font-medium text-slate-300">
