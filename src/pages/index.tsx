@@ -11,7 +11,14 @@ import { api, type RouterOutputs } from "~/utils/api";
 // This component is responsible for rendering the create post input
 const CreatePostWizard = () => {
   const { user } = useUser();
-  const { mutate: createPost } = api.posts.create.useMutation();
+  const trpcCacheContext = api.useContext();
+  const { mutate: createPost, isLoading: isPosting } =
+    api.posts.create.useMutation({
+      onSuccess: () => {
+        setInput("");
+        void trpcCacheContext.posts.invalidate();
+      },
+    });
   const [input, setInput] = useState("");
 
   if (!user) return null;
@@ -32,6 +39,7 @@ const CreatePostWizard = () => {
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
       />
       <button onClick={() => createPost({ content: input })}>Post</button>
     </div>
