@@ -22,6 +22,7 @@ const CreatePostWizard = () => {
   const [input, setInput] = useState("");
 
   if (!user) return null;
+
   return (
     <div className="flex w-full gap-3">
       <Image
@@ -52,6 +53,7 @@ type PostWithAuthor = RouterOutputs["posts"]["getAll"][number];
 const PostView = (props: PostWithAuthor) => {
   const { post, author } = props;
   dayjs.extend(relativeTime);
+
   return (
     <div key={post.id} className="flex gap-3 border-b border-slate-400 p-4">
       <Image
@@ -81,6 +83,7 @@ const Feed = () => {
   const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
   if (postsLoading) return <LoadingPage />;
   if (!data) return <div>Something went wrong</div>;
+
   return (
     <div className="flex flex-col">
       {data.map((fullPost) => (
@@ -96,6 +99,7 @@ const Home: NextPage = () => {
   api.posts.getAll.useQuery();
   // Return empty div if user is not loaded
   if (!userLoaded) return <div />;
+  
   return (
     <>
       <Head>
