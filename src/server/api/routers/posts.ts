@@ -23,14 +23,6 @@ const ratelimit = new Ratelimit({
   prefix: "@upstash/ratelimit",
 });
 
-const filterUserForClient = (user: User) => {
-  return {
-    id: user.id,
-    username: user.username,
-    profileImageUrl: user.profileImageUrl,
-  };
-};
-
 export const postsRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     // Get all posts
@@ -39,13 +31,19 @@ export const postsRouter = createTRPCRouter({
       orderBy: [{ createdAt: "desc" }],
     });
 
-    // Get all users
+    // Retrieve user information from the Clerk API based on the author IDs of posts and returns an array of objects with the user's ID, username, and profile image URL
     const users = (
       await clerkClient.users.getUserList({
         userId: posts.map((post) => post.authorId),
         limit: 100,
       })
-    ).map(filterUserForClient);
+    ).map((user: User) => {
+      return {
+        id: user.id,
+        username: user.username,
+        profileImageUrl: user.profileImageUrl,
+      };
+    });
 
     // Return posts with author
     return posts.map((post) => {
