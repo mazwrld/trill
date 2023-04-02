@@ -5,6 +5,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { LoadingPage } from "~/components/loading";
 import { api, type RouterOutputs } from "~/utils/api";
 
@@ -17,6 +18,9 @@ const CreatePostWizard = () => {
       onSuccess: () => {
         setInput("");
         void trpcCacheContext.posts.invalidate();
+      },
+      onError: () => {
+        toast.error("Invalid emoji or try again later");
       },
     });
   const [input, setInput] = useState("");
@@ -99,7 +103,7 @@ const Home: NextPage = () => {
   api.posts.getAll.useQuery();
   // Return empty div if user is not loaded
   if (!userLoaded) return <div />;
-  
+
   return (
     <>
       <Head>
