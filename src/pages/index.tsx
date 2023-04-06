@@ -6,7 +6,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { LoadingPage } from "~/components/loading";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { api, type RouterOutputs } from "~/utils/api";
 
 // This component is responsible for rendering the create post input
@@ -44,9 +44,22 @@ const CreatePostWizard = () => {
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            createPost({ content: input });
+          }
+        }}
         disabled={isPosting}
       />
-      <button onClick={() => createPost({ content: input })}>Post</button>
+      {input !== "" && !isPosting && (
+        <button onClick={() => createPost({ content: input })}>Post</button>
+      )}
+      {isPosting && (
+        <div className="flex items-center justify-center">
+          <LoadingSpinner size={20} />
+        </div>
+      )}
     </div>
   );
 };
