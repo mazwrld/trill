@@ -4,4 +4,7 @@
 
 body {
   @apply bg-black text-slate-100;
+
+  /* disable page scroll */
+  overscroll-behavior: none;
 }
