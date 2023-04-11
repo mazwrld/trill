@@ -31,7 +31,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   };
 };
 
-//
+
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data } = api.profile.getUserByUsername.useQuery({
     username: username,
