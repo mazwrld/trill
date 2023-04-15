@@ -31,7 +31,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
   };
 };
 
-
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data } = api.profile.getUserByUsername.useQuery({
     username: username,
@@ -45,18 +44,20 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         <title>{data.username}</title>
       </Head>
       <PageLayout>
-        <div className="relative h-48 bg-gradient-to-r from-sky-500 to-indigo-500">
+        <div className="relative h-36 bg-gradient-to-r from-sky-500 to-indigo-500">
           <Image
             src={data.profileImageUrl}
             alt={`@${data.username ?? "user's profile pic"}'s profile image`}
-            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-4 border-black"
+            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-4 border-black bg-black"
             width={128}
             height={128}
             placeholder="blur"
             blurDataURL={data.profileImageUrl}
           />
-          <div>{data.username}</div>
         </div>
+        <div className="h-[64px]" />
+        <div className="p-5 text-2xl">{`@${data.username ?? ""}`}</div>
+        <div className="w-full border-b border-slate-400" />
       </PageLayout>
     </>
   );
