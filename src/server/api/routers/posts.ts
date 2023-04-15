@@ -1,4 +1,5 @@
 import { clerkClient } from "@clerk/nextjs/server";
+import { type post as Post } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis";
@@ -10,7 +11,51 @@ import {
 } from "~/server/api/trpc";
 import { filterUserForClient } from "~/server/utils/filterUserForClient";
 
+/**
+ * Adds user data to posts
+ * @param posts - Array of posts
+ * @returns Array of posts with author
+ * @throws TRPCError
+ */
+const addUserDataToPosts = async (posts: Post[]) => {
+  // Retrieve user information from the Clerk API based on the author IDs of posts and returns an array of objects with the user's ID, username, and profile image URL
+  const users = (
+    await clerkClient.users.getUserList({
+      userId: posts.map((post) => post.authorId),
+      limit: 110,
+    })
+  ).map(filterUserForClient);
+
+  return posts.map((post) => {
+    const author = users.find((user) => user.id === post.authorId);
+
+    if (!author || !author.username)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Author for post not found",
+      });
+
+    // Return posts with author
+    return {
+      post,
+      author: {
+        ...author,
+        username: author.username,
+      },
+    };
+  });
+};
+
 // Create a new ratelimiter, that allows 3 requests per minute
+// create jsdoc for this function
+/**
+ * Creates a new ratelimiter, that allows 3 requests per minute
+ * @param redis - Redis instance
+ * @param limiter - Limiter
+ * @param analytics - Analytics
+ * @param prefix - Prefix
+ * @returns Ratelimit
+ */
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(3, "1 m"),
@@ -31,33 +76,26 @@ export const postsRouter = createTRPCRouter({
       orderBy: [{ createdAt: "desc" }],
     });
 
-    // Retrieve user information from the Clerk API based on the author IDs of posts and returns an array of objects with the user's ID, username, and profile image URL
-    const users = (
-      await clerkClient.users.getUserList({
-        userId: posts.map((post) => post.authorId),
-        limit: 100,
-      })
-    ).map(filterUserForClient);
-
-    // Return posts with author
-    return posts.map((post) => {
-      const author = users.find((user) => user.id === post.authorId);
-
-      if (!author || !author.username)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Author not found",
-        });
-
-      return {
-        post,
-        author: {
-          ...author,
-          username: author.username,
-        },
-      };
-    });
+    return addUserDataToPosts(posts);
   }),
+
+  getPostsByUserId: publicProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .query(({ ctx, input }) =>
+      ctx.prisma.post
+        .findMany({
+          where: {
+            authorId: input.userId,
+          },
+          take: 100,
+          orderBy: [{ createdAt: "desc" }],
+        })
+        .then(addUserDataToPosts)
+    ),
 
   create: privateProcedure
     .input(
