@@ -1,13 +1,10 @@
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import superjson from "superjson";
 import { LoadingPage } from "~/components/loading";
 import { PageLayout } from "~/components/PageLayout";
 import { PostView } from "~/components/PostView";
-import { appRouter } from "~/server/api/root";
-import { prisma } from "~/server/db";
+import { generateSSGHelper } from "~/server/utils/ssgHelper";
 import { api } from "~/utils/api";
 
 const ProfileFeed = (props: { userId: string }) => {
@@ -30,12 +27,7 @@ const ProfileFeed = (props: { userId: string }) => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const ssg = createProxySSGHelpers({
-    router: appRouter,
-    ctx: { prisma, userId: null },
-    transformer: superjson, // optional - adds superjson serialization
-  });
-
+  const ssg = generateSSGHelper();
   const slug = context.params?.slug;
 
   if (typeof slug !== "string") throw new Error("Slug is not a string");
