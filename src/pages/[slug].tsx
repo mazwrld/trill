@@ -27,7 +27,7 @@ const ProfileFeed = (props: { userId: string }) => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const ssg = generateSSGHelper();
+  const ssg = generateSSGHelper(); // hydrates data from the server
   const slug = context.params?.slug;
 
   if (typeof slug !== "string") throw new Error("Slug is not a string");
@@ -38,7 +38,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   return {
     props: {
-      trpcState: ssg.dehydrate(),
+      trpcState: ssg.dehydrate(), // dehydrates data to send html to the client to be cached by the CDN
       username,
     },
     revalidate: 1, // revalidate every 1 second

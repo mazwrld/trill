@@ -6,7 +6,7 @@ import { generateSSGHelper } from "~/server/utils/ssgHelper";
 import { api } from "~/utils/api";
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const ssg = generateSSGHelper();
+  const ssg = generateSSGHelper(); // hydrates data from the server
   const id = context.params?.id;
 
   if (typeof id !== "string") throw new Error("Post id is not a string");
@@ -15,7 +15,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   return {
     props: {
-      trpcState: ssg.dehydrate(),
+      trpcState: ssg.dehydrate(), // dehydrates data to send html to the client to be cached by the CDN
       id,
     },
     revalidate: 1, // revalidate every 1 second
