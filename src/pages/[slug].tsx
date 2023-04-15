@@ -3,7 +3,7 @@ import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import superjson from "superjson";
-import { LoadingPage } from "~/components/Loading";
+import { LoadingPage } from "~/components/loading";
 import { PageLayout } from "~/components/PageLayout";
 import { PostView } from "~/components/PostView";
 import { appRouter } from "~/server/api/root";
