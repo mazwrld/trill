@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/react";
 import { type AppType } from "next/app";
 import Head from "next/head";
 import { Toaster } from "react-hot-toast";
@@ -15,6 +16,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       </Head>
       <Toaster position="bottom-center" />
       <Component {...pageProps} />
+      <Analytics />
     </ClerkProvider>
   );
 };
